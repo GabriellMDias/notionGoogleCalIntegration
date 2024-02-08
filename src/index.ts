@@ -13,12 +13,34 @@ app.get("/getEventsLastTenMin", async (req: Request, res: Response) => {
   res.send(result);
 });
 
-app.post("/insertEvent", async (req: Request, res: Response) => {
-  const {title, dateStart, dateEnd, iCalUID} = req.body
-
-  const result = await notionApi.insertEvent(title, iCalUID, dateStart, dateEnd)
+app.post("/getEventByICalUID", async (req: Request, res: Response) => {
+  const { ICalUID } = req.body
+  const result = await notionApi.getEventByICalUID(ICalUID)
   res.send(result)
 })
+
+app.post("/insertEvent", async (req: Request, res: Response) => {
+  const {iCalUID, title, dateStart, dateEnd} = req.body
+
+  const result = await notionApi.insertEvent(iCalUID, title, dateStart, dateEnd)
+  res.send(result)
+})
+
+app.patch("/updateEvent", async (req:Request, res: Response) => {
+  const {iCalUID, title, dateStart, dateEnd} = req.body
+
+  const result = await notionApi.updateEvent(iCalUID, title, dateStart, dateEnd)
+  res.send(result)
+  
+})
+
+app.delete("/deleteEvent", async (req: Request, res: Response) => {
+  const { ICalUID } = req.body
+  const result = await notionApi.deleteEvent(ICalUID)
+  res.send(result)
+})
+
+
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
