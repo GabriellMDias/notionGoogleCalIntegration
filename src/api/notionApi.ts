@@ -3,14 +3,14 @@ import { Client } from '@notionhq/client';
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const DATABASE_ID = process.env.CALENDAR_DATABASE_ID || "";
 
-const getEventByICalUID = async (iCalUID: string) => {
+const getEventByCalID = async (calID: string) => {
   const response = await notion.databases.query({
     database_id: DATABASE_ID,
     filter: {
-      property: "iCalUID",
+      property: "calID",
       rich_text: 
         {
-            equals: iCalUID
+            equals: calID
         }
     }
   });
@@ -33,7 +33,7 @@ const getEventsLastTenMin = async () => {
   return response;
 }
 
-const insertEvent = async (iCalUID: string, title:string, dateStart: string, dateEnd?: string) => {
+const insertEvent = async (calID: string, title:string, dateStart: string, dateEnd?: string) => {
   const response = await notion.pages.create({
     parent: {
         type: "database_id",
@@ -55,11 +55,11 @@ const insertEvent = async (iCalUID: string, title:string, dateStart: string, dat
             end: dateEnd ?? null
           }
         },
-        iCalUID: {
+        calID: {
           rich_text: [
             {
                 text: {
-                    content: iCalUID
+                    content: calID
                 }
             }
         ]
@@ -69,8 +69,8 @@ const insertEvent = async (iCalUID: string, title:string, dateStart: string, dat
   return response;
 }
 
-const deleteEvent = async (ICalUID: string) => {
-  const eventBlock = await getEventByICalUID(ICalUID)
+const deleteEvent = async (calID: string) => {
+  const eventBlock = await getEventByCalID(calID)
   const blockId = eventBlock.results[0].id;
   const response = await notion.blocks.delete({
     block_id: blockId,
@@ -78,8 +78,8 @@ const deleteEvent = async (ICalUID: string) => {
   return response;
 }
 
-const updateEvent = async (iCalUID: string, title:string, dateStart: string, dateEnd?: string) => {
-  const eventBlock = await getEventByICalUID(iCalUID)
+const updateEvent = async (calID: string, title:string, dateStart: string, dateEnd?: string) => {
+  const eventBlock = await getEventByCalID(calID)
   const pageId = eventBlock.results[0].id;
   const response = await notion.pages.update({
     page_id: pageId,
@@ -99,11 +99,11 @@ const updateEvent = async (iCalUID: string, title:string, dateStart: string, dat
           end: dateEnd ?? null
         }
       },
-      iCalUID: {
+      calID: {
         rich_text: [
           {
               text: {
-                  content: iCalUID
+                  content: calID
               }
           }
       ]
@@ -115,7 +115,7 @@ const updateEvent = async (iCalUID: string, title:string, dateStart: string, dat
 
 export default {
   getEventsLastTenMin,
-  getEventByICalUID,
+  getEventByCalID,
   insertEvent,
   deleteEvent,
   updateEvent
